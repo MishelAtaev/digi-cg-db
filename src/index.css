@@ -1,13 +1,63 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+
+:root {
+  --font-alegreya: "Alegreya Sans", sans-serif;
+  --base-font-size: clamp(
+    14px,
+    calc(0.875rem + ((1vw - 3.3px) * 0.3774)),
+    20px
+  );
+  --h1-font-size: clamp(20px, calc(1.25rem + ((1vw - 3.3px) * 0.5031)), 28px);
+  --h2-font-size: clamp(18px, calc(1.125rem + ((1vw - 3.3px) * 0.5031)), 26px);
+  --h3-font-size: clamp(16px, calc(1rem + ((1vw - 3.3px) * 0.5031)), 24px);
+  --navbar-font-size: clamp(
+    10px,
+    calc(0.625rem + ((1vw - 3.3px) * 1.3699)),
+    16px
+  );
+
+  --main-color: #07407b;
+  --hover-color: #7fcdee;
+  --accent-color: #f7931e;
+  --nav-bar-color: #0e0f3b;
+  --white: #ffffff;
+  --black: #000000;
+  --text-line-height: 130%;
+  --text-spacing: 0px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-alegreya);
+  font-weight: 500;
+  line-height: var(--text-line-height);
+  letter-spacing: var(--text-spacing);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--main-color);
+}
+
+h1 {
+  font-size: var(--h1-font-size);
+}
+
+h2 {
+  font-size: var(--h2-font-size);
+}
+
+h3 {
+  font-size: var(--h3-font-size);
+}
+
+p,
+button {
+  font-size: var(--base-font-size);
 }
