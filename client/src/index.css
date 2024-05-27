@@ -61,3 +61,7 @@ p,
 button {
   font-size: var(--base-font-size);
 }
+
+nav {
+  background-color: var(--nav-bar-color);
+}

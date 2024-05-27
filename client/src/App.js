@@ -1,12 +1,12 @@
 import React from "react";
-import Home from "./pages/Home";
-import CardList from "./components/CardList";
+import Home from "./pages/HomePage/Home";
+import NavBar from "./components/NavBar";
 
 function App() {
   return (
-    <div className="App">
+    <div>
+      <NavBar />
       <Home />
-      {/* <CardList /> */}
     </div>
   );
 }
