@@ -1,19 +1,30 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import logo from "../images/DIGICARDNEXUS.png";
 
 const NavBar = () => {
+  const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
+
   return (
     <>
       <nav>
         <Link to="/">
           <Logo src={logo} alt="Logo" />
-          {/* mobileSrc={logoMobile} to include above for mobile logo maybe later */}
         </Link>
         <div>
           <Link to="/">Card Database</Link>
           <Link to="/">Deck Creation</Link>
           <Link to="/">Deck Database</Link>
+          {!isAuthenticated ? (
+            <button onClick={() => loginWithRedirect()}>Log in</button>
+          ) : (
+            <button
+              onClick={() => logout({ returnTo: window.location.origin })}
+            >
+              Log out
+            </button>
+          )}
         </div>
       </nav>
     </>
