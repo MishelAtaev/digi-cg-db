@@ -1,44 +1,77 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
 import logo from "../images/DIGICARDNEXUS.png";
 
 const NavBar = () => {
-  const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    window.location.href = "/";
+  };
 
   return (
-    <>
-      <nav>
-        <Link to="/">
-          <Logo src={logo} alt="Logo" />
-        </Link>
-        <div>
-          <Link to="/">Card Database</Link>
-          <Link to="/">Deck Creation</Link>
-          <Link to="/">Deck Database</Link>
-          {!isAuthenticated ? (
-            <button onClick={() => loginWithRedirect()}>Log in</button>
-          ) : (
-            <button
-              onClick={() => logout({ returnTo: window.location.origin })}
-            >
-              Log out
-            </button>
-          )}
-        </div>
-      </nav>
-    </>
+    <Nav>
+      <Link to="/">
+        <Logo src={logo} alt="Logo" />
+      </Link>
+      <NavLinks>
+        <Link to="/">Card Database</Link>
+        <Link to="/">Deck Creation</Link>
+        <Link to="/">Deck Database</Link>
+        {!isAuthenticated ? (
+          <>
+            <StyledLink to="/login">Log in</StyledLink>
+            <StyledLink to="/signup">Sign up</StyledLink>
+          </>
+        ) : (
+          <LogoutButton onClick={handleLogout}>Log out</LogoutButton>
+        )}
+      </NavLinks>
+    </Nav>
   );
 };
 
 export default NavBar;
 
+const Nav = styled.nav`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+`;
+
 const Logo = styled.img`
   width: auto;
   height: clamp(34px, calc(2.125rem + ((1vw - 3.9px) * 1.0458)), 50px);
+`;
 
-  /* @media (max-width: 768px) {
-    content: url(${(props) => props.mobileSrc});
-    height: clamp(20px, calc(1.25rem + ((1vw - 3.3px) * 6.8493)), 50px);
-  } */
+const NavLinks = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: #000;
+  font-weight: bold;
+`;
+
+const LogoutButton = styled.button`
+  background: none;
+  border: none;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
 `;
