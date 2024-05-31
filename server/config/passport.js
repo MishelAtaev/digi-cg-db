@@ -1,6 +1,5 @@
 const passport = require("passport");
 const Auth0Strategy = require("passport-auth0");
-const mongoose = require("mongoose");
 const User = require("../models/User");
 require("dotenv").config();
 
@@ -13,23 +12,17 @@ passport.use(
       callbackURL: process.env.AUTH0_CALLBACK_URL,
     },
     async (accessToken, refreshToken, extraParams, profile, done) => {
-      const newUser = {
-        auth0Id: profile.id,
-        username: profile.displayName,
-        email: profile.emails[0].value,
-      };
-
       try {
         let user = await User.findOne({ auth0Id: profile.id });
-
-        if (user) {
-          return done(null, user);
-        } else {
-          user = await User.create(newUser);
-          return done(null, user);
+        if (!user) {
+          user = await User.create({
+            auth0Id: profile.id,
+            username: profile.displayName,
+            email: profile.emails[0].value,
+          });
         }
+        return done(null, user);
       } catch (err) {
-        console.error(err);
         return done(err, null);
       }
     }
@@ -37,9 +30,13 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
+  console.log("Serializing user:", user);
   done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => done(err, user));
+  User.findById(id, (err, user) => {
+    console.log("Deserializing user:", user);
+    done(err, user);
+  });
 });
