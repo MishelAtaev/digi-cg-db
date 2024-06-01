@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import CardSearch from "../../components/CardSearch";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
 const DeckCreator = () => {
@@ -15,18 +14,19 @@ const DeckCreator = () => {
     const fetchDeck = async () => {
       if (deckId) {
         try {
-          const response = await axios.get(
-            `http://localhost:5000/api/decks/${deckId}`,
-            {
-              params: { userId },
-            }
+          const response = await fetch(
+            `http://localhost:5000/api/decks/${deckId}?userId=${userId}`
           );
-          setDeck(response.data);
+          if (response.ok) {
+            const data = await response.json();
+            setDeck(data);
+          } else {
+            console.error("Error fetching deck:", response.statusText);
+          }
         } catch (err) {
           console.error("Error fetching deck:", err);
         }
       } else {
-        // Reset the deck state for creating a new deck
         setDeck({ name: "", digiEggs: [], mainDeck: [] });
       }
     };
@@ -37,14 +37,15 @@ const DeckCreator = () => {
   useEffect(() => {
     const fetchAllCards = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/cards", {
-          params: {
-            sort: "name",
-            series: "Digimon Card Game",
-            sortdirection: "asc",
-          },
-        });
-        setCards(response.data);
+        const response = await fetch(
+          `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setCards(data);
+        } else {
+          console.error("Error fetching cards:", response.statusText);
+        }
       } catch (err) {
         console.error("Error fetching cards:", err);
       }
@@ -55,11 +56,17 @@ const DeckCreator = () => {
 
   const handleSearch = async (searchParams) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/cards", {
-        params: searchParams,
-      });
-      setCards(response.data);
-      setVisibleCards(20);
+      const queryString = new URLSearchParams(searchParams).toString();
+      const response = await fetch(
+        `http://localhost:5000/api/cards?${queryString}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setCards(data);
+        setVisibleCards(20);
+      } else {
+        console.error("Error fetching cards:", response.statusText);
+      }
     } catch (err) {
       console.error("Error fetching cards:", err);
     }
@@ -77,11 +84,19 @@ const DeckCreator = () => {
       image_url: card.image_url,
     };
     try {
-      const response = await axios.post("http://localhost:5000/api/deck/add", {
-        card: cardData,
-        userId,
+      const response = await fetch("http://localhost:5000/api/deck/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ card: cardData, userId }),
       });
-      setDeck(response.data);
+      if (response.ok) {
+        const data = await response.json();
+        setDeck(data);
+      } else {
+        console.error("Error adding card to deck:", response.statusText);
+      }
     } catch (err) {
       console.error("Error adding card to deck:", err);
     }
@@ -89,11 +104,19 @@ const DeckCreator = () => {
 
   const removeCardFromDeck = async (card) => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/deck/remove",
-        { card, userId }
-      );
-      setDeck(response.data);
+      const response = await fetch("http://localhost:5000/api/deck/remove", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ card, userId }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setDeck(data);
+      } else {
+        console.error("Error removing card from deck:", response.statusText);
+      }
     } catch (err) {
       console.error("Error removing card from deck:", err);
     }
@@ -101,11 +124,18 @@ const DeckCreator = () => {
 
   const handleSaveDeck = async () => {
     try {
-      await axios.post("http://localhost:5000/api/decks/save", {
-        deck,
-        userId,
+      const response = await fetch("http://localhost:5000/api/decks/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ deck, userId }),
       });
-      navigate("/decks");
+      if (response.ok) {
+        navigate("/decks");
+      } else {
+        console.error("Error saving deck:", response.statusText);
+      }
     } catch (err) {
       console.error("Error saving deck:", err);
     }

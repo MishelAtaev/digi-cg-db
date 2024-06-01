@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const DecksOverview = () => {
   const [decks, setDecks] = useState([]);
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId"); // Retrieve userId from local storage
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -15,10 +14,15 @@ const DecksOverview = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:5000/api/decks", {
-          params: { userId },
-        });
-        setDecks(response.data);
+        const response = await fetch(
+          `http://localhost:5000/api/decks?userId=${userId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setDecks(data);
+        } else {
+          console.error("Error fetching decks:", response.statusText);
+        }
       } catch (err) {
         console.error("Error fetching decks:", err);
       }
@@ -29,17 +33,24 @@ const DecksOverview = () => {
 
   const handleDeleteDeck = async (deckId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/decks/${deckId}`, {
-        params: { userId },
-      });
-      setDecks(decks.filter((deck) => deck._id !== deckId));
+      const response = await fetch(
+        `http://localhost:5000/api/decks/${deckId}?userId=${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (response.ok) {
+        setDecks(decks.filter((deck) => deck._id !== deckId));
+      } else {
+        console.error("Error deleting deck:", response.statusText);
+      }
     } catch (err) {
       console.error("Error deleting deck:", err);
     }
   };
 
   const handleCreateNewDeck = () => {
-    navigate("/deck/new"); // Navigate without any state
+    navigate("/deck/new");
   };
 
   return (

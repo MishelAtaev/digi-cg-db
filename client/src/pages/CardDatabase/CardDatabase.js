@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from "react";
 import CardSearch from "../../components/CardSearch";
-import axios from "axios";
 
 const CardDatabase = () => {
   const [cards, setCards] = useState([]);
   const [visibleCards, setVisibleCards] = useState(20);
 
-  // Fetch all cards when the component mounts
   useEffect(() => {
     const fetchAllCards = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/cards", {
-          params: {
-            sort: "name",
-            series: "Digimon Card Game",
-            sortdirection: "asc",
-          },
-        });
-        setCards(response.data);
+        const response = await fetch(
+          `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setCards(data);
+        } else {
+          console.error("Error fetching cards:", response.statusText);
+        }
       } catch (err) {
         console.error("Error fetching cards:", err);
       }
@@ -32,11 +31,17 @@ const CardDatabase = () => {
 
   const handleSearch = async (searchParams) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/cards", {
-        params: searchParams,
-      });
-      setCards(response.data);
-      setVisibleCards(20);
+      const queryString = new URLSearchParams(searchParams).toString();
+      const response = await fetch(
+        `http://localhost:5000/api/cards?${queryString}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setCards(data);
+        setVisibleCards(20);
+      } else {
+        console.error("Error fetching cards:", response.statusText);
+      }
     } catch (err) {
       console.error("Error fetching cards:", err);
     }
