@@ -1,23 +1,21 @@
 const { ObjectId } = require("mongodb");
 const { getDb } = require("../db");
 
+// Validate UUID
 const isValidUuid = (id) =>
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
     id
   );
 
+// Add card to deck
 const addCardToDeck = async (req, res) => {
   const { card, userId } = req.body;
 
-  console.log("addCardToDeck request body:", req.body);
-
   if (!isValidUuid(userId)) {
-    console.error("Invalid userId:", userId);
     return res.status(400).send("Invalid userId");
   }
 
   if (!card || !card.cardnumber || !card.type) {
-    console.error("Invalid card data:", card);
     return res.status(400).send("Invalid card data");
   }
 
@@ -26,11 +24,7 @@ const addCardToDeck = async (req, res) => {
     let deck = await db.collection("decks").findOne({ userId });
 
     if (!deck) {
-      deck = {
-        userId,
-        digiEggs: [],
-        mainDeck: [],
-      };
+      deck = { userId, digiEggs: [], mainDeck: [] };
     }
 
     if (card.type === "Digi-Egg") {
@@ -91,18 +85,15 @@ const addCardToDeck = async (req, res) => {
   }
 };
 
+// Remove card from deck
 const removeCardFromDeck = async (req, res) => {
   const { card, userId } = req.body;
 
-  console.log("removeCardFromDeck request body:", req.body);
-
   if (!isValidUuid(userId)) {
-    console.error("Invalid userId:", userId);
     return res.status(400).send("Invalid userId");
   }
 
   if (!card || !card.cardnumber || !card.type) {
-    console.error("Invalid card data:", card);
     return res.status(400).send("Invalid card data");
   }
 
@@ -143,29 +134,22 @@ const removeCardFromDeck = async (req, res) => {
   }
 };
 
+// Get a specific deck
 const getDeck = async (req, res) => {
   const { userId, deckId } = req.query;
 
-  console.log("getDeck request query:", req.query);
-
   if (!isValidUuid(userId) || !ObjectId.isValid(deckId)) {
-    console.error("Invalid userId or deckId:", userId, deckId);
     return res.status(400).send("Invalid userId or deckId");
   }
 
   try {
     const db = getDb();
-    const deck = await db.collection("decks").findOne({
-      userId,
-      _id: ObjectId(deckId),
-    });
+    const deck = await db
+      .collection("decks")
+      .findOne({ userId, _id: ObjectId(deckId) });
     if (!deck) {
-      console.error(
-        `Deck not found for deckId: ${deckId} and userId: ${userId}`
-      );
       return res.status(404).send("Deck not found.");
     }
-    console.log("Deck data retrieved:", deck); // Debug log
     res.status(200).send(deck);
   } catch (e) {
     console.error("Error in getDeck:", e);
@@ -173,13 +157,11 @@ const getDeck = async (req, res) => {
   }
 };
 
+// Get all decks for a user
 const getDecks = async (req, res) => {
   const { userId } = req.query;
 
-  console.log("getDecks request query:", req.query);
-
   if (!isValidUuid(userId)) {
-    console.error("Invalid userId:", userId);
     return res.status(400).send("Invalid userId");
   }
 
@@ -193,13 +175,11 @@ const getDecks = async (req, res) => {
   }
 };
 
+// Delete a deck
 const deleteDeck = async (req, res) => {
-  const { deckId } = req.params; // Extract deckId from params
-
-  console.log("deleteDeck request params:", req.params);
+  const { deckId } = req.params;
 
   if (!ObjectId.isValid(deckId)) {
-    console.error("Invalid deckId:", deckId);
     return res.status(400).send("Invalid deckId");
   }
 
@@ -215,13 +195,11 @@ const deleteDeck = async (req, res) => {
   }
 };
 
+// Save or update a deck
 const saveDeck = async (req, res) => {
   const { deck, userId } = req.body;
 
-  console.log("saveDeck request body:", req.body);
-
   if (!isValidUuid(userId)) {
-    console.error("Invalid userId:", userId);
     return res.status(400).send("Invalid userId");
   }
 
@@ -230,17 +208,15 @@ const saveDeck = async (req, res) => {
 
     if (deck._id) {
       if (!ObjectId.isValid(deck._id)) {
-        console.error("Invalid deckId:", deck._id);
         return res.status(400).send("Invalid deckId");
       }
       const { _id, ...updateFields } = deck;
-      await db.collection("decks").updateOne(
-        {
-          _id: ObjectId.createFromHexString(deck._id), // Convert _id to ObjectId
-          userId,
-        },
-        { $set: updateFields }
-      );
+      await db
+        .collection("decks")
+        .updateOne(
+          { _id: ObjectId.createFromHexString(deck._id), userId },
+          { $set: updateFields }
+        );
     } else {
       deck.userId = userId;
       const result = await db.collection("decks").insertOne(deck);

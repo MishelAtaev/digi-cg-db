@@ -1,6 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import CardSearch from "../../components/CardSearch";
 import { useNavigate, useParams } from "react-router-dom";
+
+// Helper function for API calls
+const fetchCards = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Error fetching cards:", response.statusText);
+    }
+  } catch (err) {
+    console.error("Error fetching cards:", err);
+  }
+};
 
 const DeckCreator = () => {
   const [cards, setCards] = useState([]);
@@ -13,20 +27,10 @@ const DeckCreator = () => {
   useEffect(() => {
     const fetchDeck = async () => {
       if (deckId) {
-        try {
-          const response = await fetch(
-            `http://localhost:5000/api/decks/${deckId}?userId=${userId}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            console.log("Fetched deck data:", data); // Debug log
-            setDeck(data);
-          } else {
-            console.error("Error fetching deck:", response.statusText);
-          }
-        } catch (err) {
-          console.error("Error fetching deck:", err);
-        }
+        const data = await fetchCards(
+          `http://localhost:5000/api/decks/${deckId}?userId=${userId}`
+        );
+        if (data) setDeck(data);
       }
     };
 
@@ -35,46 +39,28 @@ const DeckCreator = () => {
 
   useEffect(() => {
     const fetchAllCards = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setCards(data);
-        } else {
-          console.error("Error fetching cards:", response.statusText);
-        }
-      } catch (err) {
-        console.error("Error fetching cards:", err);
-      }
+      const data = await fetchCards(
+        `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
+      );
+      if (data) setCards(data);
     };
 
     fetchAllCards();
   }, []);
 
+  // Handle search functionality
   const handleSearch = async (searchParams) => {
-    try {
-      const queryString = new URLSearchParams(searchParams).toString();
-      const response = await fetch(
-        `http://localhost:5000/api/cards?${queryString}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setCards(data);
-        setVisibleCards(20);
-      } else {
-        console.error("Error fetching cards:", response.statusText);
-      }
-    } catch (err) {
-      console.error("Error fetching cards:", err);
+    const queryString = new URLSearchParams(searchParams).toString();
+    const data = await fetchCards(
+      `http://localhost:5000/api/cards?${queryString}`
+    );
+    if (data) {
+      setCards(data);
+      setVisibleCards(20);
     }
   };
 
-  const handleShowMore = () => {
-    setVisibleCards((prevVisibleCards) => prevVisibleCards + 20);
-  };
-
+  // Add card to deck
   const addCardToDeck = async (card) => {
     const cardData = {
       cardnumber: card.cardnumber,
@@ -85,14 +71,11 @@ const DeckCreator = () => {
     try {
       const response = await fetch("http://localhost:5000/api/deck/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ card: cardData, userId }),
       });
       if (response.ok) {
         const data = await response.json();
-        console.log("Updated deck data after adding card:", data); // Debug log
         setDeck(data);
       } else {
         console.error("Error adding card to deck:", response.statusText);
@@ -102,18 +85,16 @@ const DeckCreator = () => {
     }
   };
 
+  // Remove card from deck
   const removeCardFromDeck = async (card) => {
     try {
       const response = await fetch("http://localhost:5000/api/deck/remove", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ card, userId }),
       });
       if (response.ok) {
         const data = await response.json();
-        console.log("Updated deck data after removing card:", data); // Debug log
         setDeck(data);
       } else {
         console.error("Error removing card from deck:", response.statusText);
@@ -123,13 +104,12 @@ const DeckCreator = () => {
     }
   };
 
+  // Save deck
   const handleSaveDeck = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/decks/save", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deck, userId }),
       });
       if (response.ok) {
@@ -142,12 +122,25 @@ const DeckCreator = () => {
     }
   };
 
+  // Calculate total cards in main deck
   const calculateTotalMainDeckCount = () => {
     return deck.mainDeck.reduce((total, card) => total + card.count, 0);
   };
 
+  // Calculate total Digi-Egg cards
   const calculateTotalDigiEggCount = () => {
     return deck.digiEggs.reduce((total, card) => total + card.count, 0);
+  };
+
+  // Get card count in the deck
+  const getCardCountInDeck = (card) => {
+    const mainDeckCard = deck.mainDeck.find(
+      (c) => c.cardnumber === card.cardnumber
+    );
+    const digiEggCard = deck.digiEggs.find(
+      (c) => c.cardnumber === card.cardnumber
+    );
+    return (mainDeckCard?.count || 0) + (digiEggCard?.count || 0);
   };
 
   return (
@@ -173,8 +166,8 @@ const DeckCreator = () => {
                   alt={card.name}
                   style={{ width: "200px", height: "auto" }}
                 />
-                <p>{card.name}</p>
                 <button onClick={() => addCardToDeck(card)}>+</button>
+                <span>{getCardCountInDeck(card)}</span>
                 <button onClick={() => removeCardFromDeck(card)}>-</button>
               </div>
             ))}
@@ -184,7 +177,9 @@ const DeckCreator = () => {
         )}
       </div>
       {visibleCards < cards.length && (
-        <button onClick={handleShowMore}>Show More</button>
+        <button onClick={() => setVisibleCards((prev) => prev + 20)}>
+          Show More
+        </button>
       )}
       <h2>Your Deck</h2>
       <h3>Digi-Egg Cards ({calculateTotalDigiEggCount()}/5)</h3>
@@ -200,7 +195,7 @@ const DeckCreator = () => {
               style={{ width: "200px", height: "auto" }}
             />
             <p>{card.name}</p>
-            <p>Count: {card.count}</p>
+            <p>{card.count}</p>
             <button onClick={() => addCardToDeck(card)}>+</button>
             <button onClick={() => removeCardFromDeck(card)}>-</button>
           </div>
@@ -219,7 +214,7 @@ const DeckCreator = () => {
               style={{ width: "200px", height: "auto" }}
             />
             <p>{card.name}</p>
-            <p>Count: {card.count}</p>
+            <p>{card.count}</p>
             <button onClick={() => addCardToDeck(card)}>+</button>
             <button onClick={() => removeCardFromDeck(card)}>-</button>
           </div>

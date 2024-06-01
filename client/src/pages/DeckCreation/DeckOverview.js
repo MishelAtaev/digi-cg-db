@@ -1,36 +1,41 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Helper function for API calls
+const fetchDecks = async (userId) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/decks?userId=${userId}`
+    );
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Error fetching decks:", response.statusText);
+    }
+  } catch (err) {
+    console.error("Error fetching decks:", err);
+  }
+};
+
 const DecksOverview = () => {
   const [decks, setDecks] = useState([]);
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    const fetchDecks = async () => {
+    const loadDecks = async () => {
       if (!userId) {
         console.error("No userId provided");
         return;
       }
-
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/decks?userId=${userId}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setDecks(data);
-        } else {
-          console.error("Error fetching decks:", response.statusText);
-        }
-      } catch (err) {
-        console.error("Error fetching decks:", err);
-      }
+      const data = await fetchDecks(userId);
+      if (data) setDecks(data);
     };
 
-    fetchDecks();
+    loadDecks();
   }, [userId]);
 
+  // Delete a deck
   const handleDeleteDeck = async (deckId) => {
     try {
       const response = await fetch(`http://localhost:5000/decks/${deckId}`, {
@@ -46,6 +51,7 @@ const DecksOverview = () => {
     }
   };
 
+  // Navigate to create a new deck
   const handleCreateNewDeck = () => {
     navigate("/deck/new");
   };

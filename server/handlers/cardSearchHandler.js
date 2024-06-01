@@ -1,6 +1,18 @@
 const axios = require("axios");
 require("dotenv").config();
 
+// Build query string dynamically
+const buildQueryParams = (params) => {
+  const query = new URLSearchParams();
+  Object.keys(params).forEach((key) => {
+    if (params[key]) {
+      query.append(key, params[key]);
+    }
+  });
+  return query.toString();
+};
+
+// Handler to fetch cards from the API
 const getCards = async (req, res) => {
   const {
     name,
@@ -16,42 +28,32 @@ const getCards = async (req, res) => {
   } = req.query;
 
   try {
-    let response;
     let url;
+    const query = buildQueryParams({
+      name,
+      desc,
+      color,
+      type,
+      attribute,
+      card,
+      pack,
+      sort,
+      sortdirection,
+      series,
+    });
 
-    // Build query string dynamically
-    const query = new URLSearchParams();
-    if (name) query.append("n", name);
-    if (desc) query.append("desc", desc);
-    if (color) query.append("color", color);
-    if (type) query.append("type", type);
-    if (attribute) query.append("attribute", attribute);
-    if (card) query.append("card", card);
-    if (pack) query.append("pack", pack);
-    if (sort) query.append("sort", sort);
-    if (sortdirection) query.append("sortdirection", sortdirection);
-    if (series) query.append("series", series);
-
-    if (query.toString()) {
-      // Fetch specific cards based on query parameters
-      url = `${process.env.DIGIMON_API_URL}/search.php?${query.toString()}`;
-      console.log("Fetching specific cards from Digimon API with URL:", url);
-      response = await axios.get(url);
+    if (query) {
+      url = `${process.env.DIGIMON_API_URL}/search.php?${query}`;
     } else {
-      // Fetch all cards
-      const allCardsQuery = new URLSearchParams({
+      const allCardsQuery = buildQueryParams({
         sort: "name",
         series: "Digimon Card Game",
         sortdirection: "asc",
       });
-
-      url = `${
-        process.env.DIGIMON_API_URL
-      }/getAllCards.php?${allCardsQuery.toString()}`;
-      console.log("Fetching all cards from Digimon API with URL:", url);
-      response = await axios.get(url);
+      url = `${process.env.DIGIMON_API_URL}/getAllCards.php?${allCardsQuery}`;
     }
 
+    const response = await axios.get(url);
     const cards = response.data.map((card) => ({
       name: card.name,
       type: card.type,
@@ -72,7 +74,6 @@ const getCards = async (req, res) => {
       card_sets: card.card_sets,
       image_url: card.image_url,
     }));
-    console.log("Fetched cards:", cards);
     res.json(cards);
   } catch (err) {
     console.error("Error fetching cards:", err);
@@ -80,6 +81,4 @@ const getCards = async (req, res) => {
   }
 };
 
-module.exports = {
-  getCards,
-};
+module.exports = { getCards };

@@ -14,11 +14,12 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
     }
   }, [setIsAuthenticated]);
 
+  // Handle logout process
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     setIsAuthenticated(false);
-    navigate("/"); // Redirect to home page or login page
+    navigate("/");
   };
 
   return (

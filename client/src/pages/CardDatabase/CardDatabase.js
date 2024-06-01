@@ -1,50 +1,51 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import CardSearch from "../../components/CardSearch";
+
+// Fetch cards from the API
+const fetchCards = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Error fetching cards:", response.statusText);
+    }
+  } catch (err) {
+    console.error("Error fetching cards:", err);
+  }
+};
 
 const CardDatabase = () => {
   const [cards, setCards] = useState([]);
   const [visibleCards, setVisibleCards] = useState(20);
 
+  // Fetch all cards from API
   useEffect(() => {
     const fetchAllCards = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setCards(data);
-        } else {
-          console.error("Error fetching cards:", response.statusText);
-        }
-      } catch (err) {
-        console.error("Error fetching cards:", err);
-      }
+      const data = await fetchCards(
+        `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
+      );
+      if (data) setCards(data);
     };
 
     fetchAllCards();
   }, []);
 
-  const handleShowMore = () => {
-    setVisibleCards((prevVisibleCards) => prevVisibleCards + 20);
+  // Handle search functionality
+  const handleSearch = async (searchParams) => {
+    const queryString = new URLSearchParams(searchParams).toString();
+    const data = await fetchCards(
+      `http://localhost:5000/api/cards?${queryString}`
+    );
+    if (data) {
+      setCards(data);
+      setVisibleCards(20);
+    }
   };
 
-  const handleSearch = async (searchParams) => {
-    try {
-      const queryString = new URLSearchParams(searchParams).toString();
-      const response = await fetch(
-        `http://localhost:5000/api/cards?${queryString}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setCards(data);
-        setVisibleCards(20);
-      } else {
-        console.error("Error fetching cards:", response.statusText);
-      }
-    } catch (err) {
-      console.error("Error fetching cards:", err);
-    }
+  // Show more cards
+  const handleShowMore = () => {
+    setVisibleCards((prev) => prev + 20);
   };
 
   return (

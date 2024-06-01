@@ -1,32 +1,29 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Login = ({ setIsAuthenticated }) => {
-  const [formData, setFormData] = useState({
-    identifier: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
+  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
     try {
-      const response = await axios.post("http://localhost:5000/login", {
-        identifier: formData.identifier,
-        password: formData.password,
-      });
-
+      const response = await axios.post(
+        "http://localhost:5000/login",
+        formData
+      );
       if (response.data.status === 200) {
         setSuccess("Login successful!");
         setIsAuthenticated(true);
