@@ -1,14 +1,14 @@
 const { MongoClient } = require("mongodb");
-require("dotenv").config();
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
+require("dotenv").config();
 
 const { MONGO_URI } = process.env;
+const client = new MongoClient(MONGO_URI);
+
 const dbName = "diginexus";
 
 const signupHandler = async (req, res) => {
-  const client = new MongoClient(MONGO_URI);
-
   try {
     await client.connect();
     const db = client.db(dbName);
@@ -18,15 +18,13 @@ const signupHandler = async (req, res) => {
       (field) => req.body[field] === undefined || req.body[field] === ""
     );
 
-    // Checking if all the required fields are completed
     if (missingFields.length > 0) {
       return res.status(400).json({
         status: 400,
-        message: "Missing-Data",
+        message: "Missing data",
       });
     }
 
-    // Checking if the password and confirmPassword match
     if (password !== confirmPassword) {
       return res.status(400).json({
         status: 400,
@@ -34,39 +32,31 @@ const signupHandler = async (req, res) => {
       });
     }
 
-    // Checking if the new user doesn't already have an account created
     const existingUser = await db
       .collection("users")
       .findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
       return res.status(400).json({
         status: 400,
-        message: `Error, there is already an account with this email or username`,
+        message: "User with this email or username already exists",
       });
     }
 
-    // Hashing the password for security
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newUser = {
-      _id: uuidv4(),
+      _id: uuidv4(), // Generate unique user ID using uuid
       username,
       email,
       password: hashedPassword,
     };
 
-    const insertNewUser = await db.collection("users").insertOne(newUser);
-    if (!insertNewUser || !insertNewUser.insertedId) {
-      return res.status(500).json({
-        status: 500,
-        message: "Mongo error while creating new user",
-      });
-    }
+    const result = await db.collection("users").insertOne(newUser);
 
     res.status(201).json({
       status: 201,
-      _id: insertNewUser.insertedId,
+      userId: newUser._id, // Return the new user's UUID
     });
   } catch (error) {
     console.log(error);
@@ -81,34 +71,22 @@ const signupHandler = async (req, res) => {
 
 const loginHandler = async (req, res) => {
   const { identifier, password } = req.body;
-  const client = new MongoClient(MONGO_URI);
-
-  if (!identifier || !password) {
-    return res.status(400).json({
-      status: 400,
-      message: "Please include a username/email and password",
-    });
-  }
-
-  // Connecting to database
   try {
     await client.connect();
     const db = client.db(dbName);
     const query = {
       $or: [{ email: identifier }, { username: identifier }],
     };
-    const foundUser = await db.collection("users").findOne(query);
+    const user = await db.collection("users").findOne(query);
 
-    // Checking in the database if there is a user with this email or username
-    if (!foundUser) {
+    if (!user) {
       return res.status(404).json({
         status: 404,
-        message: `Unable to find an account with the provided credentials`,
+        message: "User not found",
       });
     }
 
-    // Comparing the password given by the user to the database making sure they are the same
-    const isPasswordValid = await bcrypt.compare(password, foundUser.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -117,15 +95,10 @@ const loginHandler = async (req, res) => {
       });
     }
 
-    // If password and email/username are correct, send the user data except the password
-    const { password: hashedPassword, ...userData } = foundUser;
-
     res.status(200).json({
       status: 200,
-      message: "Login successful",
-      user: userData,
+      userId: user._id, // Return the user's UUID
     });
-    console.log("This is userData: ", userData);
   } catch (error) {
     console.log(error);
     res.status(500).json({

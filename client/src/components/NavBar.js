@@ -1,22 +1,24 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import logo from "../images/DIGICARDNEXUS.png";
 
-const NavBar = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setIsAuthenticated(true);
     }
-  }, []);
+  }, [setIsAuthenticated]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     setIsAuthenticated(false);
-    window.location.href = "/";
+    navigate("/"); // Redirect to home page or login page
   };
 
   return (
@@ -25,9 +27,9 @@ const NavBar = () => {
         <Logo src={logo} alt="Logo" />
       </Link>
       <NavLinks>
-        <Link to="/">Card Database</Link>
-        <Link to="/">Deck Creation</Link>
-        <Link to="/">Deck Database</Link>
+        <Link to="/carddatabase">Card Database</Link>
+        <Link to="/deck/new">Deck Creation</Link>
+        <Link to="/decks">Deck Database</Link>
         {!isAuthenticated ? (
           <>
             <StyledLink to="/login">Log in</StyledLink>

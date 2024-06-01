@@ -1,10 +1,21 @@
 const mongoose = require("mongoose");
 
-const DeckSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  cards: [{ type: String, required: true }],
-  public: { type: Boolean, default: false },
+const deckSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "User",
+  },
+  digiEggs: {
+    type: Array,
+    default: [],
+  },
+  mainDeck: {
+    type: Array,
+    default: [],
+  },
 });
 
-module.exports = mongoose.model("Deck", DeckSchema);
+const Deck = mongoose.model("Deck", deckSchema);
+
+module.exports = Deck;

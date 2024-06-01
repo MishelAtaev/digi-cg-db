@@ -36,7 +36,7 @@ const Signup = ({ setIsAuthenticated }) => {
       if (response.data.status === 201) {
         setSuccess("Signup successful! Redirecting to home...");
         setIsAuthenticated(true);
-        localStorage.setItem("token", response.data.token); // Store the token
+        localStorage.setItem("userId", response.data.userId); // Store the userId
         setTimeout(() => navigate("/"), 1000);
       } else {
         setError(response.data.message || "Signup failed");

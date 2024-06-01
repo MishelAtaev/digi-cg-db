@@ -1,6 +1,7 @@
+const axios = require("axios");
 require("dotenv").config();
 
-exports.getCards = async (req, res) => {
+const getCards = async (req, res) => {
   const {
     name,
     desc,
@@ -15,7 +16,6 @@ exports.getCards = async (req, res) => {
   } = req.query;
 
   try {
-    const fetch = (await import("node-fetch")).default;
     let response;
     let url;
 
@@ -36,7 +36,7 @@ exports.getCards = async (req, res) => {
       // Fetch specific cards based on query parameters
       url = `${process.env.DIGIMON_API_URL}/search.php?${query.toString()}`;
       console.log("Fetching specific cards from Digimon API with URL:", url);
-      response = await fetch(url);
+      response = await axios.get(url);
     } else {
       // Fetch all cards
       const allCardsQuery = new URLSearchParams({
@@ -49,21 +49,37 @@ exports.getCards = async (req, res) => {
         process.env.DIGIMON_API_URL
       }/getAllCards.php?${allCardsQuery.toString()}`;
       console.log("Fetching all cards from Digimon API with URL:", url);
-      response = await fetch(url);
+      response = await axios.get(url);
     }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Network response was not ok: ${response.statusText}, ${errorText}`
-      );
-    }
-
-    const cards = await response.json();
+    const cards = response.data.map((card) => ({
+      name: card.name,
+      type: card.type,
+      color: card.color,
+      stage: card.stage,
+      digi_type: card.digi_type,
+      attribute: card.attribute,
+      level: card.level,
+      play_cost: card.play_cost,
+      evolution_cost: card.evolution_cost,
+      cardrarity: card.cardrarity,
+      artist: card.artist,
+      dp: card.dp,
+      cardnumber: card.cardnumber,
+      maineffect: card.maineffect,
+      soureeffect: card.soureeffect,
+      set_name: card.set_name,
+      card_sets: card.card_sets,
+      image_url: card.image_url,
+    }));
     console.log("Fetched cards:", cards);
     res.json(cards);
   } catch (err) {
     console.error("Error fetching cards:", err);
     res.status(500).send("Server Error");
   }
+};
+
+module.exports = {
+  getCards,
 };
