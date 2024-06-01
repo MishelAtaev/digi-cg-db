@@ -37,7 +37,7 @@ app.post("/api/deck/add", addCardToDeck);
 app.post("/api/deck/remove", removeCardFromDeck);
 app.get("/api/deck", getDeck);
 app.get("/api/decks", getDecks);
-app.delete("/api/decks/:deckId", deleteDeck);
+app.delete("/decks/:deckId", deleteDeck);
 app.post("/api/decks/save", saveDeck);
 
 // Error handling middleware

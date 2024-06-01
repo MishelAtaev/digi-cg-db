@@ -34,36 +34,50 @@ const addCardToDeck = async (req, res) => {
     }
 
     if (card.type === "Digi-Egg") {
-      if (deck.digiEggs.length < 5) {
-        deck.digiEggs.push(card);
+      const existingDigiEgg = deck.digiEggs.find(
+        (c) => c.cardnumber === card.cardnumber
+      );
+      if (existingDigiEgg) {
+        if (existingDigiEgg.count < 4) {
+          existingDigiEgg.count += 1;
+        } else {
+          return res
+            .status(400)
+            .send(
+              "You can only have up to 4 copies of the same Digi-Egg card."
+            );
+        }
       } else {
-        return res
-          .status(400)
-          .send("You can only have up to 5 Digi-Egg cards in your deck.");
+        if (deck.digiEggs.length < 5) {
+          card.count = 1;
+          deck.digiEggs.push(card);
+        } else {
+          return res
+            .status(400)
+            .send("You can only have up to 5 Digi-Egg cards in your deck.");
+        }
       }
     } else {
       const existingCard = deck.mainDeck.find(
         (c) => c.cardnumber === card.cardnumber
       );
-      const cardCount = existingCard ? existingCard.count : 0;
-
-      if (deck.mainDeck.length < 50 && cardCount < 4) {
-        if (existingCard) {
+      if (existingCard) {
+        if (existingCard.count < 4) {
           existingCard.count += 1;
         } else {
+          return res
+            .status(400)
+            .send("You can only have up to 4 copies of the same card.");
+        }
+      } else {
+        if (deck.mainDeck.length < 50) {
           card.count = 1;
           deck.mainDeck.push(card);
+        } else {
+          return res
+            .status(400)
+            .send("You can only have up to 50 cards in your main deck.");
         }
-      } else if (cardCount >= 4) {
-        return res
-          .status(400)
-          .send(
-            "You can only have up to 4 copies of the same card in your deck."
-          );
-      } else {
-        return res
-          .status(400)
-          .send("You can only have up to 50 cards in your main deck.");
       }
     }
 
@@ -146,8 +160,12 @@ const getDeck = async (req, res) => {
       _id: ObjectId(deckId),
     });
     if (!deck) {
+      console.error(
+        `Deck not found for deckId: ${deckId} and userId: ${userId}`
+      );
       return res.status(404).send("Deck not found.");
     }
+    console.log("Deck data retrieved:", deck); // Debug log
     res.status(200).send(deck);
   } catch (e) {
     console.error("Error in getDeck:", e);
@@ -176,21 +194,20 @@ const getDecks = async (req, res) => {
 };
 
 const deleteDeck = async (req, res) => {
-  const { deckId, userId } = req.query;
+  const { deckId } = req.params; // Extract deckId from params
 
-  console.log("deleteDeck request query:", req.query);
+  console.log("deleteDeck request params:", req.params);
 
-  if (!ObjectId.isValid(deckId) || !isValidUuid(userId)) {
-    console.error("Invalid deckId or userId:", deckId, userId);
-    return res.status(400).send("Invalid deckId or userId");
+  if (!ObjectId.isValid(deckId)) {
+    console.error("Invalid deckId:", deckId);
+    return res.status(400).send("Invalid deckId");
   }
 
   try {
     const db = getDb();
-    await db.collection("decks").deleteOne({
-      _id: ObjectId(deckId),
-      userId,
-    });
+    await db
+      .collection("decks")
+      .deleteOne({ _id: ObjectId.createFromHexString(deckId) });
     res.status(200).send({ message: "Deck deleted" });
   } catch (e) {
     console.error("Error in deleteDeck:", e);
@@ -219,7 +236,7 @@ const saveDeck = async (req, res) => {
       const { _id, ...updateFields } = deck;
       await db.collection("decks").updateOne(
         {
-          _id: new ObjectId(deck._id),
+          _id: ObjectId.createFromHexString(deck._id), // Convert _id to ObjectId
           userId,
         },
         { $set: updateFields }

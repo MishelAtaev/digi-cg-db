@@ -28,7 +28,6 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
       </Link>
       <NavLinks>
         <Link to="/carddatabase">Card Database</Link>
-        <Link to="/deck/new">Deck Creation</Link>
         <Link to="/decks">Deck Database</Link>
         {!isAuthenticated ? (
           <>

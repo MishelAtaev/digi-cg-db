@@ -33,12 +33,9 @@ const DecksOverview = () => {
 
   const handleDeleteDeck = async (deckId) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/decks/${deckId}?userId=${userId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`http://localhost:5000/decks/${deckId}`, {
+        method: "DELETE",
+      });
       if (response.ok) {
         setDecks(decks.filter((deck) => deck._id !== deckId));
       } else {

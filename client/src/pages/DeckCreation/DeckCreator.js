@@ -19,6 +19,7 @@ const DeckCreator = () => {
           );
           if (response.ok) {
             const data = await response.json();
+            console.log("Fetched deck data:", data); // Debug log
             setDeck(data);
           } else {
             console.error("Error fetching deck:", response.statusText);
@@ -26,8 +27,6 @@ const DeckCreator = () => {
         } catch (err) {
           console.error("Error fetching deck:", err);
         }
-      } else {
-        setDeck({ name: "", digiEggs: [], mainDeck: [] });
       }
     };
 
@@ -93,6 +92,7 @@ const DeckCreator = () => {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log("Updated deck data after adding card:", data); // Debug log
         setDeck(data);
       } else {
         console.error("Error adding card to deck:", response.statusText);
@@ -113,6 +113,7 @@ const DeckCreator = () => {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log("Updated deck data after removing card:", data); // Debug log
         setDeck(data);
       } else {
         console.error("Error removing card from deck:", response.statusText);
@@ -141,12 +142,20 @@ const DeckCreator = () => {
     }
   };
 
+  const calculateTotalMainDeckCount = () => {
+    return deck.mainDeck.reduce((total, card) => total + card.count, 0);
+  };
+
+  const calculateTotalDigiEggCount = () => {
+    return deck.digiEggs.reduce((total, card) => total + card.count, 0);
+  };
+
   return (
     <div>
       <h1>{deckId ? "Update Deck" : "Create New Deck"}</h1>
       <input
         type="text"
-        value={deck.name}
+        value={deck.name || ""}
         onChange={(e) => setDeck({ ...deck, name: e.target.value })}
         placeholder="Deck Name"
       />
@@ -178,7 +187,7 @@ const DeckCreator = () => {
         <button onClick={handleShowMore}>Show More</button>
       )}
       <h2>Your Deck</h2>
-      <h3>Digi-Egg Cards ({deck.digiEggs.length}/5)</h3>
+      <h3>Digi-Egg Cards ({calculateTotalDigiEggCount()}/5)</h3>
       <div style={{ display: "flex", flexWrap: "wrap" }}>
         {deck.digiEggs.map((card) => (
           <div
@@ -191,11 +200,13 @@ const DeckCreator = () => {
               style={{ width: "200px", height: "auto" }}
             />
             <p>{card.name}</p>
+            <p>Count: {card.count}</p>
+            <button onClick={() => addCardToDeck(card)}>+</button>
             <button onClick={() => removeCardFromDeck(card)}>-</button>
           </div>
         ))}
       </div>
-      <h3>Main Deck Cards ({deck.mainDeck.length}/50)</h3>
+      <h3>Main Deck Cards ({calculateTotalMainDeckCount()}/50)</h3>
       <div style={{ display: "flex", flexWrap: "wrap" }}>
         {deck.mainDeck.map((card) => (
           <div
