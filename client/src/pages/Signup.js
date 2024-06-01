@@ -50,14 +50,15 @@ const Signup = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h2>Signup</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {success && <p style={{ color: "green" }}>{success}</p>}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="section">
           <label>Username</label>
           <input
+            className="deck-creator-input"
             type="text"
             name="username"
             placeholder="Username"
@@ -66,9 +67,10 @@ const Signup = ({ setIsAuthenticated }) => {
             required
           />
         </div>
-        <div>
+        <div className="section">
           <label>Email</label>
           <input
+            className="deck-creator-input"
             type="email"
             name="email"
             placeholder="Email"
@@ -77,9 +79,10 @@ const Signup = ({ setIsAuthenticated }) => {
             required
           />
         </div>
-        <div>
+        <div className="section">
           <label>Password</label>
           <input
+            className="deck-creator-input"
             type="password"
             name="password"
             placeholder="Password"
@@ -88,9 +91,10 @@ const Signup = ({ setIsAuthenticated }) => {
             required
           />
         </div>
-        <div>
+        <div className="section">
           <label>Confirm Password</label>
           <input
+            className="deck-creator-input"
             type="password"
             name="confirmPassword"
             placeholder="Confirm Password"
@@ -99,7 +103,9 @@ const Signup = ({ setIsAuthenticated }) => {
             required
           />
         </div>
-        <button type="submit">Signup</button>
+        <button className="deck-creator-button" type="submit">
+          Signup
+        </button>
       </form>
     </div>
   );

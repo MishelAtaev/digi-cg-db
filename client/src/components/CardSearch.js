@@ -33,7 +33,7 @@ const CardSearch = ({ onSearch }) => {
   };
 
   return (
-    <div>
+    <div className="card-search">
       <h2>Search Digimon Cards</h2>
       <div>
         <input name="name" placeholder="Name" onChange={handleChange} />

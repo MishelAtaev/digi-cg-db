@@ -144,83 +144,103 @@ const DeckCreator = () => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>{deckId ? "Update Deck" : "Create New Deck"}</h1>
       <input
+        className="deck-creator-input"
         type="text"
         value={deck.name || ""}
         onChange={(e) => setDeck({ ...deck, name: e.target.value })}
         placeholder="Deck Name"
       />
       <CardSearch onSearch={handleSearch} />
-      <div>
+      <div className="card-container">
         {cards.length > 0 ? (
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {cards.slice(0, visibleCards).map((card) => (
-              <div
-                key={card.cardnumber}
-                style={{ margin: "10px", textAlign: "center" }}
-              >
-                <img
-                  src={card.image_url}
-                  alt={card.name}
-                  style={{ width: "200px", height: "auto" }}
-                />
-                <button onClick={() => addCardToDeck(card)}>+</button>
+          cards.slice(0, visibleCards).map((card) => (
+            <div className="card" key={card.cardnumber}>
+              <img src={card.image_url} alt={card.name} />
+              <p>{card.name}</p>
+              <div className="deck-buttons">
+                <button
+                  className="deck-creator-button"
+                  onClick={() => addCardToDeck(card)}
+                >
+                  +
+                </button>
                 <span>{getCardCountInDeck(card)}</span>
-                <button onClick={() => removeCardFromDeck(card)}>-</button>
+                <button
+                  className="deck-creator-button"
+                  onClick={() => removeCardFromDeck(card)}
+                >
+                  -
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         ) : (
           <p>No cards found</p>
         )}
       </div>
       {visibleCards < cards.length && (
-        <button onClick={() => setVisibleCards((prev) => prev + 20)}>
+        <button
+          className="deck-creator-button"
+          onClick={() => setVisibleCards((prev) => prev + 20)}
+        >
           Show More
         </button>
       )}
       <h2>Your Deck</h2>
       <h3>Digi-Egg Cards ({calculateTotalDigiEggCount()}/5)</h3>
-      <div style={{ display: "flex", flexWrap: "wrap" }}>
+      <div className="card-container">
         {deck.digiEggs.map((card) => (
-          <div
-            key={card.cardnumber}
-            style={{ margin: "10px", textAlign: "center" }}
-          >
-            <img
-              src={card.image_url}
-              alt={card.name}
-              style={{ width: "200px", height: "auto" }}
-            />
+          <div className="card" key={card.cardnumber}>
+            <img src={card.image_url} alt={card.name} />
             <p>{card.name}</p>
-            <p>{card.count}</p>
-            <button onClick={() => addCardToDeck(card)}>+</button>
-            <button onClick={() => removeCardFromDeck(card)}>-</button>
+            <p>Count: {card.count}</p>
+            <div className="deck-buttons">
+              <button
+                className="deck-creator-button"
+                onClick={() => addCardToDeck(card)}
+              >
+                +
+              </button>
+              <button
+                className="deck-creator-button"
+                onClick={() => removeCardFromDeck(card)}
+              >
+                -
+              </button>
+            </div>
           </div>
         ))}
       </div>
       <h3>Main Deck Cards ({calculateTotalMainDeckCount()}/50)</h3>
-      <div style={{ display: "flex", flexWrap: "wrap" }}>
+      <div className="card-container">
         {deck.mainDeck.map((card) => (
-          <div
-            key={card.cardnumber}
-            style={{ margin: "10px", textAlign: "center" }}
-          >
-            <img
-              src={card.image_url}
-              alt={card.name}
-              style={{ width: "200px", height: "auto" }}
-            />
+          <div className="card" key={card.cardnumber}>
+            <img src={card.image_url} alt={card.name} />
             <p>{card.name}</p>
-            <p>{card.count}</p>
-            <button onClick={() => addCardToDeck(card)}>+</button>
-            <button onClick={() => removeCardFromDeck(card)}>-</button>
+            <p>Count: {card.count}</p>
+            <div className="deck-buttons">
+              <button
+                className="deck-creator-button"
+                onClick={() => addCardToDeck(card)}
+              >
+                +
+              </button>
+              <button
+                className="deck-creator-button"
+                onClick={() => removeCardFromDeck(card)}
+              >
+                -
+              </button>
+            </div>
           </div>
         ))}
       </div>
-      <button onClick={handleSaveDeck}>Save Deck</button>
+      <button className="deck-creator-button" onClick={handleSaveDeck}>
+        Save Deck
+      </button>
     </div>
   );
 };

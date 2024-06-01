@@ -49,25 +49,16 @@ const CardDatabase = () => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>Card Database</h1>
       <CardSearch onSearch={handleSearch} />
-      <div>
+      <div className="card-container">
         {cards.length > 0 ? (
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {cards.slice(0, visibleCards).map((card) => (
-              <div
-                key={card.cardnumber}
-                style={{ margin: "10px", textAlign: "center" }}
-              >
-                <img
-                  src={card.image_url}
-                  alt={card.name}
-                  style={{ width: "200px", height: "auto" }}
-                />
-              </div>
-            ))}
-          </div>
+          cards.slice(0, visibleCards).map((card) => (
+            <div className="card" key={card.cardnumber}>
+              <img src={card.image_url} alt={card.name} />
+            </div>
+          ))
         ) : (
           <p>No cards found</p>
         )}

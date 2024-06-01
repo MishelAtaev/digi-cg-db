@@ -57,30 +57,38 @@ const DecksOverview = () => {
   };
 
   return (
-    <div>
-      <h1>Your Decks</h1>
-      <button onClick={handleCreateNewDeck}>Create New Deck</button>
+    <div className="container">
       {decks.length > 0 ? (
-        <div>
+        <div className="card-container">
           {decks.map((deck) => (
-            <div key={deck._id}>
+            <div className="card" key={deck._id}>
               <h2>{deck.name}</h2>
               <button
+                className="deck-creator-button"
                 onClick={() =>
                   navigate(`/deck/${deck._id}`, { state: { userId } })
                 }
               >
                 Edit
               </button>
-              <button onClick={() => handleDeleteDeck(deck._id)}>Delete</button>
+              <button
+                className="deck-creator-button"
+                onClick={() => handleDeleteDeck(deck._id)}
+              >
+                Delete
+              </button>
             </div>
           ))}
         </div>
       ) : (
-        <p>No decks found</p>
+        <div className="center-container">
+          <button className="center-button" onClick={handleCreateNewDeck}>
+            Create New Deck
+          </button>
+          <p>No decks found</p>
+        </div>
       )}
     </div>
   );
 };
-
 export default DecksOverview;
