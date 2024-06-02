@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Login = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [error, setError] = useState("");
@@ -21,7 +23,7 @@ const Login = ({ setIsAuthenticated }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/login",
+        `${API_URL}/login`,
         formData
       );
       if (response.data.status === 200) {

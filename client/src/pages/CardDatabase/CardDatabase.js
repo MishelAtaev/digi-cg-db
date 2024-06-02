@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import CardSearch from "../../components/CardSearch";
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 // Fetch cards from the API
 const fetchCards = async (url) => {
   try {
@@ -23,7 +25,7 @@ const CardDatabase = () => {
   useEffect(() => {
     const fetchAllCards = async () => {
       const data = await fetchCards(
-        `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
+        `${API_URL}/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
       );
       if (data) setCards(data);
     };
@@ -35,7 +37,7 @@ const CardDatabase = () => {
   const handleSearch = async (searchParams) => {
     const queryString = new URLSearchParams(searchParams).toString();
     const data = await fetchCards(
-      `http://localhost:5000/api/cards?${queryString}`
+      `${API_URL}/api/cards?${queryString}`
     );
     if (data) {
       setCards(data);

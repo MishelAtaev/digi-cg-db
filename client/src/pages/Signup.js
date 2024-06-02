@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Signup = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({
     username: "",
@@ -31,7 +33,7 @@ const Signup = ({ setIsAuthenticated }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/signup",
+        `${API_URL}/signup`,
         formData
       );
       if (response.data.status === 201) {

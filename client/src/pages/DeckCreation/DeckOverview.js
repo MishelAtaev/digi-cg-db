@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 // Helper function for API calls
 const fetchDecks = async (userId) => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/decks?userId=${userId}`
+      `${API_URL}/api/decks?userId=${userId}`
     );
     if (response.ok) {
       return await response.json();
@@ -38,7 +40,7 @@ const DecksOverview = () => {
   // Delete a deck
   const handleDeleteDeck = async (deckId) => {
     try {
-      const response = await fetch(`http://localhost:5000/decks/${deckId}`, {
+      const response = await fetch(`${API_URL}/decks/${deckId}`, {
         method: "DELETE",
       });
       if (response.ok) {

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import CardSearch from "../../components/CardSearch";
 import { useNavigate, useParams } from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 // Helper function for API calls
 const fetchCards = async (url) => {
   try {
@@ -28,7 +30,7 @@ const DeckCreator = () => {
     const fetchDeck = async () => {
       if (deckId) {
         const data = await fetchCards(
-          `http://localhost:5000/api/decks/${deckId}?userId=${userId}`
+          `${API_URL}/api/decks/${deckId}?userId=${userId}`
         );
         if (data) setDeck(data);
       }
@@ -40,7 +42,7 @@ const DeckCreator = () => {
   useEffect(() => {
     const fetchAllCards = async () => {
       const data = await fetchCards(
-        `http://localhost:5000/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
+        `${API_URL}/api/cards?sort=name&series=Digimon Card Game&sortdirection=asc`
       );
       if (data) setCards(data);
     };
@@ -51,9 +53,7 @@ const DeckCreator = () => {
   // Handle search functionality
   const handleSearch = async (searchParams) => {
     const queryString = new URLSearchParams(searchParams).toString();
-    const data = await fetchCards(
-      `http://localhost:5000/api/cards?${queryString}`
-    );
+    const data = await fetchCards(`${API_URL}/api/cards?${queryString}`);
     if (data) {
       setCards(data);
       setVisibleCards(20);
@@ -69,7 +69,7 @@ const DeckCreator = () => {
       image_url: card.image_url,
     };
     try {
-      const response = await fetch("http://localhost:5000/api/deck/add", {
+      const response = await fetch(`${API_URL}/api/deck/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ card: cardData, userId }),
@@ -88,7 +88,7 @@ const DeckCreator = () => {
   // Remove card from deck
   const removeCardFromDeck = async (card) => {
     try {
-      const response = await fetch("http://localhost:5000/api/deck/remove", {
+      const response = await fetch(`${API_URL}/api/deck/remove`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ card, userId }),
@@ -107,7 +107,7 @@ const DeckCreator = () => {
   // Save deck
   const handleSaveDeck = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/decks/save", {
+      const response = await fetch(`${API_URL}/api/decks/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deck, userId }),
