@@ -19,7 +19,14 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+
+// Configure CORS
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://digicardnexus.vercel.app'], 
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(morgan("dev"));
 
 // Connect to MongoDB
