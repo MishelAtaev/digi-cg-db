@@ -43,9 +43,9 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
             </Link>
           </>
         ) : (
-          <button className="logout-button" onClick={handleLogout}>
+          <a href="/" className="nav-link" onClick={handleLogout}>
             Log out
-          </button>
+          </a>
         )}
       </div>
     </nav>

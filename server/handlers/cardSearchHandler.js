@@ -30,7 +30,7 @@ const getCards = async (req, res) => {
   try {
     let url;
     const query = buildQueryParams({
-      name,
+      n: name,
       desc,
       color,
       type,

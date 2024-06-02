@@ -159,7 +159,6 @@ const DeckCreator = () => {
           cards.slice(0, visibleCards).map((card) => (
             <div className="card" key={card.cardnumber}>
               <img src={card.image_url} alt={card.name} />
-              <p>{card.name}</p>
               <div className="deck-buttons">
                 <button
                   className="deck-creator-button"
@@ -195,7 +194,6 @@ const DeckCreator = () => {
         {deck.digiEggs.map((card) => (
           <div className="card" key={card.cardnumber}>
             <img src={card.image_url} alt={card.name} />
-            <p>{card.name}</p>
             <p>Count: {card.count}</p>
             <div className="deck-buttons">
               <button
@@ -219,7 +217,6 @@ const DeckCreator = () => {
         {deck.mainDeck.map((card) => (
           <div className="card" key={card.cardnumber}>
             <img src={card.image_url} alt={card.name} />
-            <p>{card.name}</p>
             <p>Count: {card.count}</p>
             <div className="deck-buttons">
               <button

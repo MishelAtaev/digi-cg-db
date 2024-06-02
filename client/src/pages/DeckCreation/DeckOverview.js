@@ -58,6 +58,10 @@ const DecksOverview = () => {
 
   return (
     <div className="container">
+      <h1>Decks</h1>
+      <button className="center-button" onClick={handleCreateNewDeck}>
+        Create New Deck
+      </button>
       {decks.length > 0 ? (
         <div className="card-container">
           {decks.map((deck) => (
@@ -82,13 +86,11 @@ const DecksOverview = () => {
         </div>
       ) : (
         <div className="center-container">
-          <button className="center-button" onClick={handleCreateNewDeck}>
-            Create New Deck
-          </button>
           <p>No decks found</p>
         </div>
       )}
     </div>
   );
 };
+
 export default DecksOverview;
